@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>号码绑定</title>
+    <link rel="stylesheet" href="https://cdn.bootcss.com/weui/1.1.3/style/weui.min.css">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/jquery-weui/1.2.1/css/jquery-weui.min.css">
+    <link rel="stylesheet" href="../css/o_base.css">
+    <link rel="stylesheet" href="../css/o_style.css">
+    <style>
+        .cred{
+            padding: .5rem 0;
+            text-align: center;
+            width: 90%;
+            margin: .5rem auto 0;
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="binding" class="hide">
+        <div class="logo tac pd-40">
+            <img src="../img/male.png" class="img">
+        </div>
+        <div class="main">
+            <div class="input">
+                <input type="text" class="phone" onkeyup="this.value=this.value.replace(/[^0-9]/g,'')" placeholder="请输入手机号码">
+            </div>
+            <div class="input flex flexBetween">
+                <input type="text" class="code wd-30" placeholder="短信验证码">
+                <div class="btnCode box getCode" onclick="getCode()">获取验证码</div>
+            </div>
+        </div>
+        <div class="btn submit" onclick="submit()">提交</div>
+        <div class="cred">备注：输入手机号码，点击获取验证码，获取后输入验证码</div>
+    </div>
+</body>
+<script src="../js/jquery-1.11.1.min.js"></script>
+<script src="https://cdn.bootcss.com/jquery-weui/1.2.1/js/jquery-weui.min.js"></script>
+<script src="../js/o_base.js"></script>
+<script>
+    var time = 60,
+        interval,
+        codeStatus = true,
+        hasCheckBirth = false;
+
+    if (UrlSearch("mac_no")) {
+        setItem("mac_no", UrlSearch("mac_no"))
+        setItem("user_type", UrlSearch("user_type"))
+        setItem("push_id", UrlSearch("push_id"))
+    }
+
+    showLoading()
+    checkLogin(function () {
+        userInfo = JSON.parse(checkBrowser() == 2 ? getItem("AliUserInfo") : getItem("WxUserInfo"))
+        ajaxPost({
+            api_name: "is_binding",
+            token: userInfo.token
+        }, "/App/home/index", function (res) {
+            hideLoading();
+            if (res.code == 1 && res.data == 1) {
+                checkBirth(function (back) {
+                    if (back.status && back.data == 1) {
+                        location.href = "./pay.html?mac_no=" + getItem("mac_no") +
+                            "&user_type=" + getItem("user_type") + "&push_id=" + getItem(
+                                "push_id") +
+                            "&token=" + userInfo.token
+                    } else if (back.status && back.data == 0) {
+                        location.href = "./basicMessage.html"
+                    }
+                })
+            } else if (res.code != 1) {
+                toast(res.msg)
+            } else if (res.code == 1 && res.data == -1) {
+                $("#binding").show()
+            }
+        });
+    });
+
+    function getCode() {
+        if (codeStatus) {
+            showLoading()
+            ajaxPost({
+                api_name: "sendCode",
+                mobile: $(".phone").val(),
+                token: userInfo.token,
+            }, "/App/home/index", function (res) {
+                hideLoading();
+                if (res.code == 1) {
+                    toast(res.msg);
+                    interval = setInterval(() => {
+                        if (time > 0) {
+                            time--;
+                            $(".getCode").text(time + "s").addClass("btnNone");
+                            codeStatus = false
+                        } else {
+                            clearInterval(interval);
+                            $(".getCode").text("重新获取").removeClass("btnNone");
+                            time = 60
+                            codeStatus = true
+                        }
+                    }, 1000);
+                } else {
+                    toast(res.msg);
+                }
+            });
+        }
+    }
+
+    function submit() {
+        showLoading()
+        ajaxPost({
+            api_name: "bindMobile",
+            token: userInfo.token,
+            mobile: $(".phone").val(),
+            code: $(".code").val(),
+        }, "/App/home/index", function (res) {
+            hideLoading();
+            toast(res.msg);
+            if (res.code == 1) {
+                /*  checkBirth(function (back) {
+                     var url;
+                     if (back && back == 1) {
+                         url = "./index.html"
+                     } else if (back && back == 0) {
+                         url = "./basicMessage.html"
+                     }
+                     setTimeout(() => {
+                         location.href = url
+                     }, 1500);
+                 }) */
+                setTimeout(() => {
+                    location.href = "./basicMessage.html"
+                }, 1500);
+            }
+        });
+    }
+
+    function checkBirth(callback) {
+        var data;
+        ajaxPost({
+            api_name: "getBaseInfo",
+            token: userInfo.token
+        }, "/App/user/api", function (res) {
+            if (res.code == 1 && res.data.birthday != "") {
+                data = {
+                    status: true,
+                    data: 1
+                }
+            } else if (res.code == 1 && res.data.birthday == "") {
+                data = {
+                    status: true,
+                    data: 0
+                }
+            } else {
+                data = {
+                    status: false,
+                    data: 1
+                }
+                toast(res.msg);
+            }
+            callback(data)
+        });
+    }
+</script>
+
+</html>

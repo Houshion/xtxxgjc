@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>我的报告</title>
+    <link rel="stylesheet" href="https://cdn.bootcss.com/weui/1.1.3/style/weui.min.css">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/jquery-weui/1.2.1/css/jquery-weui.min.css">
+    <link rel="stylesheet" href="../css/o_base.css">
+    <link rel="stylesheet" href="../css/o_style.css">
+</head>
+
+<body>
+    <div id="reportList">
+        <div class="list">
+        </div>
+        <div class="btn history" onclick="goTo('reportView.html')">历史报告情况图</div>
+    </div>
+</body>
+<script src="../js/jquery-1.11.1.min.js"></script>
+<script src="https://cdn.bootcss.com/jquery-weui/1.2.1/js/jquery-weui.min.js"></script>
+<script src="../js/o_base.js"></script>
+<script>
+    checkLogin(function () {
+        userInfo = JSON.parse(
+            checkBrowser() == 2 ? getItem("AliUserInfo") : getItem("WxUserInfo")
+        );
+        init();
+    });
+
+    function init() {
+        ajaxPost({
+            api_name: "getHealthList",
+            // token: "d589d6c96c8eacfb0bafc7121498b3c4",
+            token: userInfo.token,
+            page: "1",
+            pagesize: "999",
+        }, "/App/Health/api", function (res) {
+            if (res.code == 1) {
+                if (res.data.length > 0) {
+                    var str = "";
+                    res.data.forEach(function (item) {
+                        str +=
+                            '<div class="listBox rArow border-b" onclick="goTo(\'./reportDetail.html?id=' +
+                            item.id + '\')">' + item.ctime + '</div>'
+                    });
+                    $(".list").html(str)
+                } else {
+                    $(".list").html("<div class='mg-t-20 tac'>...暂无检测数据...</div>")
+                }
+            } else {
+                toast(res.msg)
+            }
+        });
+    }
+</script>
+
+</html>

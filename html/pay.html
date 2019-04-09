@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>支付检测</title>
+    <link rel="stylesheet" href="https://cdn.bootcss.com/weui/1.1.3/style/weui.min.css">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/jquery-weui/1.2.1/css/jquery-weui.min.css">
+    <link rel="stylesheet" href="../css/o_base.css">
+    <link rel="stylesheet" href="../css/o_style.css">
+</head>
+
+<body>
+    <div id="pay">
+        <div class="boxList flex flexStart mg-b-10">
+            <div class="img mg-r-20 wd-20">
+                <img src="../img/ic_yiyuan.png" class="wd-100 headImg">
+            </div>
+            <div class="msg flex flexWrap">
+                <div class="titleName wd-100">无创性动脉硬化评估检测</div>
+                <div class="wd-100">
+                    单价：<span class="priceColor">￥<span class="price"></span> </span>
+                </div>
+            </div>
+        </div>
+        <div class="boxList flex flexStart">
+            <div class="name">合计金额：</div>
+            <div class="priceColor">￥<span class="price totalPrice"></span></div>
+        </div>
+        <div class="payMsg mg-t-50 tac">
+            <div class="money">
+                需支付：
+                <span class="priceColor price needPay"></span>
+                元
+            </div>
+            <div class="btn payBtn" onclick="pay()">支付</div>
+        </div>
+    </div>
+</body>
+<script src="../js/jquery-1.11.1.min.js"></script>
+<script src="https://cdn.bootcss.com/jquery-weui/1.2.1/js/jquery-weui.min.js"></script>
+<script src="../js/o_base.js"></script>
+<script>
+    var shopId;
+    // init();
+
+    checkLogin(function () {
+        userInfo = JSON.parse(checkBrowser() == 2 ? getItem("AliUserInfo") : getItem("WxUserInfo"))
+        ajaxPost({
+            api_name: "is_binding",
+            token: userInfo.token
+        }, "/App/home/index", function (res) {
+            hideLoading();
+            console.log(userInfo)
+            if (res.code == 1 && res.data == 1) {
+                checkBirth(function (back) {
+                    if (back.status && back.data == 1) {
+                        ajaxPost({
+                            api_name: "shopInfo",
+                            token: userInfo.token,
+                            mac_no: UrlSearch("mac_no") ? UrlSearch("mac_no") : getItem("mac_no")
+                        }, "/App/home/index", function (res) {
+                            if (res.code == 1) {
+                                $(".titleName").text(res.data.name)
+                                $(".price").text(res.data.money)
+                                $(".headImg").attr("src", res.data.img)
+                                shopId = res.data.shop_id
+                            } else {
+                                toast(res.msg)
+                            }
+                        });
+                    } else if (back.status && back.data == 0) {
+                        location.href = "./basicMessage.html"
+                    }
+                })
+            } else if (res.code != 1) {
+                toast(res.msg)
+            } else if (res.code == 1 && res.data == -1) {
+
+            }
+        });
+    });
+
+    function init() {
+        setItem("mac_no", UrlSearch("mac_no"))
+        setItem("user_type", UrlSearch("user_type"))
+        checkBirth(function (back) {
+            if (back.status && back.data == 1) {
+                ajaxPost({
+                    api_name: "shopInfo",
+                    token: userInfo.token,
+                    mac_no: getItem("mac_no")
+                }, "/App/home/index", function (res) {
+                    if (res.code == 1) {
+                        $(".titleName").text(res.data.name)
+                        $(".price").text(res.data.money)
+                        $(".headImg").attr("src", res.data.img)
+                        shopId = res.data.shop_id
+                    } else {
+                        toast(res.msg)
+                    }
+                });
+            } else if (back.status && back.data == 0) {
+                location.href = "./basicMessage.html"
+            }
+        })
+    }
+
+    function pay() {
+        showLoading();
+        var pushId = UrlSearch("push_id") ? UrlSearch("push_id") : getItem("push_id")
+        var macNo = UrlSearch("mac_no") ? UrlSearch("mac_no") : getItem("mac_no")
+        ajaxPost({
+            api_name: "doOrder",
+            token: userInfo.token,
+            shop_id: shopId,
+            type: payType,
+            machine_code: macNo,
+            push_id: pushId
+        }, "/App/home/index", function (res) {
+            moveItem("goPay");
+            if (res.code == 1) {
+                if (payType == 1) {
+                    jsApiParameters = res.data
+                    callpay();
+                } else {
+                    AliPay(res.data);
+                }
+            } else {
+                toast(res.msg)
+            }
+        });
+    }
+
+    function checkBirth(callback) {
+        var data;
+        ajaxPost({
+            api_name: "getBaseInfo",
+            token: userInfo.token
+        }, "/App/user/api", function (res) {
+            if (res.code == 1 && res.data.birthday != "") {
+                data = {
+                    status: true,
+                    data: 1
+                }
+            } else if (res.code == 1 && res.data.birthday == "") {
+                data = {
+                    status: true,
+                    data: 0
+                }
+            } else {
+                data = {
+                    status: false,
+                    data: 1
+                }
+                toast(res.msg);
+            }
+            callback(data)
+        });
+    }
+</script>
+
+</html>

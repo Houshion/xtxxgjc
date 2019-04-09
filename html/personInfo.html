@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>个人信息</title>
+    <link rel="stylesheet" href="https://cdn.bootcss.com/weui/1.1.3/style/weui.min.css">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/jquery-weui/1.2.1/css/jquery-weui.min.css">
+    <link rel="stylesheet" href="../css/o_base.css">
+    <link rel="stylesheet" href="../css/o_style.css">
+</head>
+
+<body>
+    <div id="personInfo">
+        <div class="listBox mg-b-10">
+            <div class="headImg flex flexBetween">
+                <div>头像</div>
+                <div class="img pd-lr-20">
+                    <img src="../img/ic_yiyuan.png" class="wd-100">
+                </div>
+            </div>
+        </div>
+        <div class="listBox border-b">
+            <div class="nickName flex flexBetween">
+                <div>昵称</div>
+                <div class="name pd-lr-20 cgray"></div>
+            </div>
+        </div>
+        <div class="listBox border-b">
+            <div class="ages flex flexBetween">
+                <div>年龄</div>
+                <div class="age pd-lr-20 cgray"></div>
+            </div>
+        </div>
+        <div class="listBox border-b">
+            <a href="javascript:;">
+                <div class="PhoneNum flex flexBetween">
+                    <div>手机号码</div>
+                    <div class="phone pd-lr-20 cgray"></div>
+                </div>
+            </a>
+        </div>
+    </div>
+</body>
+<script src="../js/jquery-1.11.1.min.js"></script>
+<script src="https://cdn.bootcss.com/jquery-weui/1.2.1/js/jquery-weui.min.js"></script>
+<script src="../js/o_base.js"></script>
+<script>
+    function init() {
+        ajaxPost({
+            api_name: "getUserInfo",
+            token: userInfo.token,
+        }, "/App/home/index", function (res) {
+            if (res.code == 1) {
+                $(".age").text(res.data.age)
+                $(".headImg img").attr("src", res.data.headimg);
+                $(".name").text(res.data.nickname)
+                $(".phone").text(hidePhone(res.data.mobile))
+                $("a").attr("href", "./checkPhone.html?phone=" + res.data.mobile)
+            }
+        })
+    }
+    init();
+    // $(".headImg img").attr("src", userInfo.headimg);
+    // $(".name").text(userInfo.nickname)
+    // $(".age").text(userInfo.age)
+    // $(".phone").text(hidePhone(userInfo.phone))
+    // $("a").attr("href", "./checkPhone.html?phone=" + getItem("phone"))
+    $(".ages").click(function () {
+        $.prompt({
+            title: '提示',
+            text: '修改年龄',
+            input: '请输入您的年龄',
+            empty: false, // 是否允许为空
+            onOK: function (input) {
+                //点击确认
+                ajaxPost({
+                    api_name: "birthday",
+                    token: userInfo.token,
+                    birthday: input
+                }, "/App/home/index", function (res) {
+                    toast(res.msg)
+                    if (res.code == 1) {
+                        $(".age").text(input)
+                        userInfo.age = input
+                        setItem("WxUserInfo", JSON.stringify(userInfo))
+                    }
+                })
+            },
+            onCancel: function () {
+                //点击取消
+            }
+        });
+    });
+    $(".nickName").click(function () {
+        $.prompt({
+            title: '提示',
+            text: '修改昵称',
+            input: '请输入您的新昵称',
+            empty: false, // 是否允许为空
+            onOK: function (input) {
+                //点击确认
+                ajaxPost({
+                    api_name: "nicknameSet",
+                    token: userInfo.token,
+                    nickname: input
+                }, "/App/home/index", function (res) {
+                    toast(res.msg)
+                    if (res.code == 1) {
+                        $(".name").text(input)
+                        userInfo.nickname = input
+                        setItem("WxUserInfo", JSON.stringify(userInfo))
+                    }
+                })
+            },
+            onCancel: function () {
+                //点击取消
+            }
+        });
+    });
+</script>
+
+</html>

@@ -1,0 +1,232 @@
+.cmain {
+    color: #56c065
+}
+
+.c000 {
+    color: #000000
+}
+
+.cgray {
+    color: #bbbbbb
+}
+
+.c666 {
+    color: #666666
+}
+
+.bmain {
+    background: #56c065
+}
+
+.btn {
+    color: #ffffff;
+    background: #56c065;
+    padding: .5rem 0;
+    border-radius: 30px
+}
+
+.btnCode {
+    color: #ffffff;
+    background: #56c065;
+    padding: .25rem 1rem;
+    border-radius: 30px
+}
+
+.btnNone {
+    background: #bbbbbb
+}
+
+.priceColor {
+    color: red
+}
+
+/** index.html **/
+#index {
+    font-size: 1rem
+}
+
+#index .title {
+    font-size: 1.1rem
+}
+
+#index .msgInfo {
+    background: linear-gradient(to bottom, #73f281, #56c065);
+    padding: 1.8rem;
+    box-shadow: #56c065 0px 5px 5px 1px
+}
+
+#index .msgInfo .headImg .img {
+    width: 100px;
+    height: 100px;
+    margin: auto;
+    border-radius: 50%;
+    margin-bottom: .5rem
+}
+
+#index .msgInfo .name {
+    text-align: center;
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 1.2rem
+}
+
+#index .ul {
+    margin-top: 1rem
+}
+
+#index .ul .list {
+    padding: .8rem;
+    background: #ffffff;
+    box-shadow: #dddddd 0px 2px 2px 1px
+}
+
+#index .ul .list .boxLeft {
+    display: -moz-box;
+    -moz-box-align: center;
+    display: -webkit-box;
+    /* -webkit-box-pack: center; */
+    -webkit-box-align: center;
+    display: box;
+    box-align: center;
+}
+
+#index .ul .list .dolt {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #56c065
+}
+
+#index .message ul li {
+    text-indent: 2em
+}
+
+/** reportDetail.html **/
+#reportDetail .reportMsg {
+    padding: 15px;
+    background: #ffffff
+}
+
+/** binding.html **/
+#binding .logo .img,
+#checkPhone .logo .img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    box-shadow: #c3f1c9 0px 0px 5px 5px
+}
+
+#binding .main,
+#checkPhone .main {
+    width: 90%;
+    margin: auto
+}
+
+#binding .main .input,
+#checkPhone .main .input {
+    padding: .5rem 1rem;
+    background: #dedede;
+    border-radius: 30px;
+    margin-bottom: 1.2rem
+}
+
+#binding .main .input input,
+#checkPhone .main .input input {
+    padding: .5rem;
+    border: none;
+    background: #dedede
+}
+
+#binding .submit,
+#checkPhone .next,
+#checkPhone .submit {
+    padding: .5rem 0;
+    text-align: center;
+    width: 90%;
+    margin: 3rem auto 0
+}
+
+/** basicMessage **/
+#basicMessage .gender .genderPick {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    text-align: center;
+    border: #dddddd solid 1px;
+    background: #ffffff
+}
+
+#basicMessage .gender .genderPick.pick {
+    border-color: #ff7a3c;
+}
+
+#basicMessage .gender .genderPick .img {
+    height: 80%;
+    margin: auto;
+    border-radius: 50%;
+    padding: 10px;
+}
+
+#basicMessage .date {
+    padding: 0 1rem;
+    background: #dedede;
+    border-radius: 30px;
+    margin-bottom: 1.2rem;
+    width: 80%;
+    margin: 4rem auto;
+}
+
+#basicMessage .date input {
+    height: 3rem;
+    text-align: right
+}
+
+/** personInfo.html **/
+#personInfo .listBox {
+    padding: 15px;
+    background: #ffffff
+}
+
+#personInfo .headImg {
+    line-height: 50px;
+}
+
+#personInfo .headImg .img {
+    width: 50px;
+    height: 50px
+}
+
+/** reportList.html **/
+#reportList .listBox {
+    background: #ffffff;
+    padding: 1rem
+}
+
+#reportList .history {
+    padding: .8rem;
+    margin: 2rem auto;
+    width: 80%;
+    text-align: center;
+}
+
+/** pay.html **/
+#pay .boxList {
+    padding: 1.2rem;
+    background: #ffffff
+}
+
+#pay .boxList .msg {
+    align-content: space-around
+}
+
+#pay .payMsg .payBtn {
+    text-align: center;
+    width: 80%;
+    margin: 2rem auto 0;
+    padding: .5rem 1rem
+}
+
+/** checkPhone.html **/
+#checkPhone .getCode {
+    padding: .5rem 1rem;
+}

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>无创性动脉硬化评估报告</title>
+    <link rel="stylesheet" href="https://cdn.bootcss.com/weui/1.1.3/style/weui.min.css">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/jquery-weui/1.2.1/css/jquery-weui.min.css">
+    <link rel="stylesheet" href="../css/o_base.css">
+    <link rel="stylesheet" href="../css/o_style.css">
+    <style>
+        html,
+        body,
+        #reportDetail {
+            height: 100%;
+        }
+
+        #view1,
+        #view2 {
+            height: 50%;
+            margin: 40px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="reportDetail">
+        <div class="reportMsg tal">
+            <div class="time">
+                <span class="fontb">检测日期：</span>
+                <span class="cgray">0000-00-00 00:00:00</span>
+            </div>
+            <div class="age">
+                <span class="fontb">年龄：</span>
+                <span class="cgray">0</span>
+            </div>
+        </div>
+        <div class="message pd-15">
+            <div class="checkResult pd-t-10">
+                <div class="fontb">检查结果：</div>
+                <div class="result c666">
+                    <div class="result c666">
+                        <div class="flex flexBetween">
+                            <div>动脉脉搏波速率指数（AVI）：</div>
+                            <div><span class="avi fontb c000">0</span>(1-<span class="priceColor avi_max"></span>)</div>
+                        </div>
+                        <div class="flex flexBetween">
+                            <div>动脉压力容积指数（API）：</div>
+                            <div><span class="api fontb c000">0</span>(1-<span class="priceColor api_max"></span>)</div>
+                        </div>
+                        <div class="flex flexBetween">
+                            <div>收缩压（高压）：</div>
+                            <div><span class="sp fontb c000">0</span>mmHg(60~100)</div>
+                        </div>
+                        <div class="flex flexBetween">
+                            <div>舒张压（低压）：</div>
+                            <div><span class="dp fontb c000">0</span>mmHg(90~140)</div>
+                        </div>
+                        <div class="flex flexBetween">
+                            <div>脉搏：</div>
+                            <div><span class="pulse fontb c000">0</span>(60~90)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="quota tac pd-t-10 hide">
+                <div class="avi mg-b-10">
+                    <div class="fontb">AVI <span class="avi">0</span> 参考上限范围 <span class="avi_max"></span></div>
+                    <div class="c666">动脉脉搏波速率指数（中心动脉硬化程度指数）</div>
+                </div>
+                <div class="api mg-b-10">
+                    <div class="fontb">API <span class="api">0</span> 参考上限范围 <span class="api_max"></span></div>
+                    <div class="c666">动脉压力容积指数（上臂动脉硬化程度指标）</div>
+                </div>
+                <div class="mb mg-b-10">
+                    <div class="fontb">脉搏</div>
+                    <div class="c666">脉搏 <span class="pulse">0</span> 次/分钟 范围 60~100</div>
+                </div>
+                <div class="ssy mg-b-10">
+                    <div class="fontb">收缩压</div>
+                    <div class="c666">收缩压 <span class="sp">0</span> mmhg 范围 90~140</div>
+                </div>
+                <div class="szy mg-b-10">
+                    <div class="fontb">舒张压</div>
+                    <div class="c666">舒张压 <span class="dp">0</span> mmhg 范围 60~90</div>
+                </div>
+            </div>
+        </div>
+        <div id="view1"></div>
+        <div id="view2"></div>
+        <div class="suggest pd-10">
+            <div class="fontb">温馨提示：</div>
+            <div class="result c666">
+                <div class="ti2">AVI•API血管弹性指标结果较高或持续超出上限值时，表示患心血管疾病的风险或机率会随之增加，请注意改善生活及饮食习惯！</div>
+                <ul>
+                    <div>【保持血管年轻健康的方法】</div>
+                    <div>疾病的凶手，从平时开始注意维持以下的生活与饮食习惯吧！</div>
+                    <li>•血压的控制</li>
+                    <li>•适度的运动（特别是有氧运动）</li>
+                    <li>•营养均衡的饮食生活（低盐分、低脂肪、摄取蔬菜吃饭、维持八分饱）</li>
+                    <li>•禁止吸烟</li>
+                    <li>•充足的睡眠</li>
+                    <li>•适时求医</li>
+                    <li>•避免压力紧张的状态快乐迎接每一天</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+<script src="../js/jquery-1.11.1.min.js"></script>
+<script src="https://cdn.bootcss.com/jquery-weui/1.2.1/js/jquery-weui.min.js"></script>
+<script src="../js/echarts.min.js"></script>
+<script src="../js/o_base.js"></script>
+<script>
+    var api, avi;
+    init();
+
+    function init() {
+        ajaxPost({
+            api_name: "getHealthInfo",
+            token: UrlSearch("token") ? UrlSearch("token") : userInfo.token,
+            // token: "d589d6c96c8eacfb0bafc7121498b3c4",
+            id: UrlSearch("id"),
+        }, "/App/Health/api", function (res) {
+            if (res.code == 1) {
+
+                api = res.data.api;
+                avi = res.data.avi;
+
+                $(".time .cgray").text(res.data.ctime)
+                $(".age .cgray").text(res.data.age)
+                $("span.avi").text(avi)
+                $("span.api").text(api)
+                $("span.avi_min").text(res.data.avi_min)
+                $("span.avi_max").text(res.data.avi_max)
+                $("span.api_min").text(res.data.api_min)
+                $("span.api_max").text(res.data.api_max)
+                $("span.sp").text(res.data.systolic_pressure)
+                $("span.dp").text(res.data.diastolic_pressure)
+                $("span.pulse").text(res.data.pulse)
+
+                var element = document.createElement("script");
+                element.src = "../js/charts0.js";
+                document.body.appendChild(element);
+            } else {
+                toast(res.msg)
+            }
+        });
+    }
+</script>
+
+</html>

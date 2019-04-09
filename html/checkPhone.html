@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>验证原手机号</title>
+    <link rel="stylesheet" href="https://cdn.bootcss.com/weui/1.1.3/style/weui.min.css">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/jquery-weui/1.2.1/css/jquery-weui.min.css">
+    <link rel="stylesheet" href="../css/o_base.css">
+    <link rel="stylesheet" href="../css/o_style.css">
+</head>
+
+<body>
+    <div id="checkPhone">
+        <div class="main pd-t-50">
+            <div class="input">
+                <input type="text" class="phone" onkeyup="this.value=this.value.replace(/[^0-9]/g,'')" placeholder="">
+            </div>
+            <div class="input flex flexBetween">
+                <input type="text" class="code" placeholder="请输入短信验证码">
+                <div class="btn box getCode" onclick="getCode()">获取验证码</div>
+            </div>
+        </div>
+        <div class="btn next btnNone" onclick="next()">下一步</div>
+        <div class="btn submit hide" onclick="submit()">确认修改</div>
+    </div>
+</body>
+<script src="../js/jquery-1.11.1.min.js"></script>
+<script src="https://cdn.bootcss.com/jquery-weui/1.2.1/js/jquery-weui.min.js"></script>
+<script src="../js/o_base.js"></script>
+<script>
+    var time = 60,
+        interval,
+        codeStatus = true;
+
+    $(function () {
+        // 获取原手机号码，并填充在placeHolder
+        $(".phone").attr("placeholder", "原手机号码" + hidePhone(UrlSearch("phone")))
+    })
+
+    function getCode() {
+        if (codeStatus) {
+            if (!$(".phone").val()) {
+                return toast("请输入手机号码");
+            }
+            showLoading()
+            ajaxPost({
+                api_name: "sendCode",
+                mobile: $(".phone").val(),
+                token: userInfo.token,
+            }, "/App/home/index", function (res) {
+                hideLoading();
+                if (res.code == 1) {
+                    toast(res.msg);
+                    interval = setInterval(() => {
+                        if (time > 0) {
+                            time--;
+                            $(".getCode").text(time + "s").addClass("btnNone");
+                            codeStatus = false
+                        } else {
+                            clearInterval(interval);
+                            $(".getCode").text("重新获取").removeClass("btnNone");
+                            time = 60
+                            codeStatus = true
+                        }
+                    }, 1000);
+                } else {
+                    toast(res.msg);
+                }
+            });
+        }
+    }
+
+    function next() {
+        if (!$(".code").val()) {
+            return toast("请填写验证码");
+        }
+        if (!$(".phone").val()) {
+            return toast("请输入原手机号码");
+        }
+        ajaxPost({
+            api_name: "originMobile",
+            code: $(".code").val(),
+            token: userInfo.token,
+            mobile: $(".phone").val(),
+        }, "/App/home/index", function (res) {
+            if (res.code == 1) {
+                $(".next").hide();
+                $(".submit").show();
+                clearInterval(interval);
+                $(".getCode").text("获取验证码").removeClass("btnNone");
+                $(".code").val("");
+                time = 60;
+                codeStatus = true;
+                $(".phone").attr("placeholder", "请输入新的手机号码").val("");
+            } else {
+                toast(res.msg)
+            }
+        });
+    }
+
+    function submit() {
+        if (!$(".code").val()) {
+            return toast("请填写验证码");
+        }
+        if (!$(".phone").val()) {
+            return toast("请输入新手机号码");
+        }
+        ajaxPost({
+            api_name: "newMobile",
+            code: $(".code").val(),
+            token: userInfo.token,
+            originMobile: UrlSearch("phone"),
+            newMobile: $(".phone").val(),
+        }, "/App/home/index", function (res) {
+            toast(res.msg)
+            if (res.code == 1) {
+                setTimeout(() => {
+                    history.go(-1)
+                }, 1500);
+            } else {
+                clearInterval(interval);
+                $(".getCode").text("获取验证码").removeClass("btnNone");
+                time = 60;
+                codeStatus = true;
+            }
+        });
+    }
+</script>
+
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>完善基本信息</title>
+    <link rel="stylesheet" href="https://cdn.bootcss.com/weui/1.1.3/style/weui.min.css">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/jquery-weui/1.2.1/css/jquery-weui.min.css">
+    <link rel="stylesheet" href="../css/o_base.css">
+    <link rel="stylesheet" href="../css/o_style.css">
+    <style>
+        .cred{
+            color: red
+        }
+    </style>
+</head>
+
+<body>
+    <div id="basicMessage">
+        <div class="gender">
+            <div class="tac cgray pd-20">—— 您的性别 ——</div>
+            <div class="flex">
+                <div class="genderPick male pick" onclick="changeGender(this,1)">
+                    <img src="../img/male.png" class="img">
+                    <div>男</div>
+                </div>
+                <div class="box mg-lr-20">或</div>
+                <div class="genderPick female" onclick="changeGender(this,2)">
+                    <img src="../img/female.png" class="img">
+                    <div>女</div>
+                </div>
+            </div>
+        </div>
+        <div class="date flex flexBetween">
+            <div class="lh50 wd-40">年龄</div>
+            <input class="weui-input wd-50" id="date" type="text" placeholder="请输入年龄">
+        </div>
+        <div class="btn submit wd-90 mg-auto tac" onclick="submit()">提交</div>
+        <div class="submit wd-90 mg-auto pd-t-15 cred">备注：请输入正确年龄，绑定成功后，再开始支付</div>
+    </div>
+</body>
+<script src="../js/jquery-1.11.1.min.js"></script>
+<script src="https://cdn.bootcss.com/jquery-weui/1.2.1/js/jquery-weui.min.js"></script>
+<script src="../js/o_base.js"></script>
+<script>
+    // 初始化日历
+    // $("#date").calendar();
+
+    function changeGender(obj, gender) {
+        ajaxPost({
+            api_name: "sexEdit",
+            token: userInfo.token,
+            sex: gender
+        }, "/App/home/index", function (res) {
+            toast(res.msg)
+            if (res.code == 1) {
+                $(".genderPick").removeClass("pick")
+                $(obj).addClass("pick");
+            }
+        })
+    }
+
+    function submit() {
+        ajaxPost({
+            api_name: "birthday",
+            token: userInfo.token,
+            birthday: $("#date").val()
+        }, "/App/home/index", function (res) {
+            toast(res.msg)
+            if (res.code == 1) {
+                userInfo.age = $("#date").val()
+                setItem("WxUserInfo", JSON.stringify(userInfo))
+                setTimeout(() => {
+                    // location.href = "./pay.html?mac_no=" + getItem("mac_no") +
+                    //     "&user_type=" + getItem("user_type") + "&token=" + userInfo.token
+                    location.href = "./pay.html?mac_no=" + getItem("mac_no") +
+                        "&user_type=" + getItem("user_type") + "&push_id=" + getItem(
+                            "push_id") +
+                        "&token=" + userInfo.token
+                }, 2000);
+            }
+        })
+    }
+</script>
+
+</html>
